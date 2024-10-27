@@ -34,8 +34,6 @@ public class ElevatorController {
                 upQueue.add(floor);
             } else if(elevatorCart.getDirection() == Direction.UP && floor<elevatorCart.getCurrentFloor()) {
                 upWaitingQueue.add(floor);
-            } else if(elevatorCart.getDirection() == Direction.DOWN) {
-                downQueue.add(floor);
             } else {
                 upQueue.add(floor);
             }
@@ -45,9 +43,7 @@ public class ElevatorController {
                 downQueue.add(floor);
             } else if(elevatorCart.getDirection() == Direction.DOWN && floor>elevatorCart.getCurrentFloor()) {
                 downWaitingQueue.add(floor);
-            } else if(elevatorCart.getDirection() == Direction.UP) {
-                upQueue.add(floor);
-            } else {
+            }  else {
                 downQueue.add(floor);
             }
         }
@@ -56,13 +52,13 @@ public class ElevatorController {
                 upQueue.add(floor);
             }
             else if(elevatorCart.getDirection() == Direction.UP && floor < elevatorCart.getCurrentFloor()) {
-                upWaitingQueue.add(floor);
+                downQueue.add(floor);
             }
             else if(elevatorCart.getDirection() == Direction.DOWN && floor<= elevatorCart.getCurrentFloor()) {
                 downQueue.add(floor);
             }
             else if(elevatorCart.getDirection() == Direction.DOWN && floor > elevatorCart.getCurrentFloor()) {
-                downWaitingQueue.add(floor);
+                upQueue.add(floor);
             }
             else {
                 if(floor > elevatorCart.getCurrentFloor()) {
@@ -97,6 +93,8 @@ public class ElevatorController {
                     elevatorCart.setDirection(Direction.UP);
                     if(elevatorCart.getCurrentFloor() == upQueue.peek()) {
                         upQueue.poll();
+                        // wait for floor selection for that elevator
+
                     }
                     else {
                         try {

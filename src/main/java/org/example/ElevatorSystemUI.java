@@ -49,50 +49,69 @@ public class ElevatorSystemUI extends JFrame {
 
         for (int i = floorManager.getFloorCount() - 1; i >= 0; i--) {
             int floorNumber = i;
+
             JPanel floorPanel = new JPanel();
+            floorPanel.setLayout(new BorderLayout());
             floorPanel.setBorder(BorderFactory.createTitledBorder("Floor " + floorNumber));
 
-            JButton upButton = new JButton("Up");
-            upButton.addActionListener(e -> {
-                floorManager.getFloor(floorNumber).pressButton(Direction.UP);
-                System.out.println("Up button pressed on floor " + floorNumber);
-            });
+            // Create a panel for the floor buttons (Up/Down)
+            JPanel buttonPanel = new JPanel();
+            if (floorNumber < floorManager.getFloorCount() - 1) {
+                JButton upButton = new JButton("Up");
+                upButton.addActionListener(e -> {
+                    floorManager.getFloor(floorNumber).pressButton(Direction.UP);
+                    System.out.println("Up button pressed on floor " + floorNumber);
+                });
+                buttonPanel.add(upButton);
+            }
 
-            JButton downButton = new JButton("Down");
-            downButton.addActionListener(e -> {
-                floorManager.getFloor(floorNumber).pressButton(Direction.DOWN);
-                System.out.println("Down button pressed on floor " + floorNumber);
-            });
+            if (floorNumber > 0) {
+                JButton downButton = new JButton("Down");
+                downButton.addActionListener(e -> {
+                    floorManager.getFloor(floorNumber).pressButton(Direction.DOWN);
+                    System.out.println("Down button pressed on floor " + floorNumber);
+                });
+                buttonPanel.add(downButton);
+            }
 
-            floorPanel.add(upButton);
-            floorPanel.add(downButton);
+            floorPanel.add(buttonPanel, BorderLayout.WEST);
 
-            // Create individual elevator position labels
+            // Create a panel for the elevator boxes
+            JPanel elevatorPanel = new JPanel();
+            elevatorPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
+
             for (int j = 0; j < elevatorManager.getElevatorCount(); j++) {
-                JLabel elevatorPosition = new JLabel("Elevator " + j + " here");
-                elevatorPosition.setVisible(false); // Initially hidden
+                JPanel elevatorBox = new JPanel();
+                elevatorBox.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+                elevatorBox.setPreferredSize(new Dimension(50, 30)); // Set dimensions for elevator box
 
-                floorPanel.add(elevatorPosition);
+                JLabel elevatorLabel = new JLabel("Elev " + j, SwingConstants.CENTER);
+                elevatorBox.add(elevatorLabel);
+                elevatorBox.setBackground(Color.LIGHT_GRAY); // Default color when elevator is not on this floor
+                elevatorBox.setVisible(false);
 
-                // Track each elevator’s position and update label visibility
+                elevatorPanel.add(elevatorBox);
+
+                // Update visibility and color of elevator based on position
                 final int elevatorIndex = j;
-                Timer timer = new Timer(1000, new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (elevatorManager.getElevatorController(elevatorIndex).getElevatorCart().getCurrentFloor() == floorNumber) {
-                            elevatorPosition.setVisible(true);
-                        } else {
-                            elevatorPosition.setVisible(false);
-                        }
+                Timer timer = new Timer(1000, e -> {
+                    if (elevatorManager.getElevatorController(elevatorIndex).getElevatorCart().getCurrentFloor() == floorNumber) {
+                        elevatorBox.setBackground(Color.GREEN); // Color when elevator is present
+                        elevatorBox.setVisible(true);
+                    } else {
+                        elevatorBox.setBackground(Color.LIGHT_GRAY);
+                        elevatorBox.setVisible(false);
                     }
                 });
                 timer.start();
             }
 
+            floorPanel.add(elevatorPanel, BorderLayout.CENTER);
             floorsPanel.add(floorPanel);
         }
         return floorsPanel;
     }
+
 
     private JPanel createControlPanel() {
         JPanel controlPanel = new JPanel();
@@ -125,7 +144,7 @@ public class ElevatorSystemUI extends JFrame {
 
     private JPanel createInternalDisplayPanel() {
         JPanel internalDisplayPanel = new JPanel();
-        internalDisplayPanel.setLayout(new GridLayout(3, 1));
+        internalDisplayPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
         internalDisplayPanel.setBorder(BorderFactory.createTitledBorder("Internal Display"));
 
         // Dropdown for selecting the elevator
@@ -142,8 +161,9 @@ public class ElevatorSystemUI extends JFrame {
             floorDropdown.addItem(i);
         }
 
-        // GO button to send the elevator to the selected floor
+        // Small "GO" button to send the elevator to the selected floor
         JButton goButton = new JButton("GO");
+        goButton.setPreferredSize(new Dimension(50, 25)); // Set smaller dimensions for the GO button
         goButton.addActionListener(e -> {
             int selectedElevator = (int) elevatorDropdown.getSelectedItem();
             int destinationFloor = (int) floorDropdown.getSelectedItem();
